@@ -11,7 +11,6 @@
    bubble sort -- sequential, parallel -- 
 */
 
-int maxnthreads;
 
 void sequential_bubble_sort (uint64_t *T, const uint64_t size)
 {
@@ -23,9 +22,9 @@ void sequential_bubble_sort (uint64_t *T, const uint64_t size)
     do
     {
         sorted = 1;
-        for(i = 0; i < size; i++)
+        for(i = 0; i < size - 1; i++)
         {
-            if (T[i+1] < T[i])
+            if (T[i] > T[i+1])
             {
                 temp = T[i+1];
                 T[i+1] = T[i];
@@ -42,43 +41,33 @@ void sequential_bubble_sort (uint64_t *T, const uint64_t size)
 
 void parallel_bubble_sort (uint64_t *T, const uint64_t size)
 {
-    /* TODO: parallel implementation of bubble sort */
+    /* parallel implementation of bubble sort */
 
-    uint64_t i, temp;
-    uint64_t sorted;
-
-    uint64_t j = 0;
+    uint64_t temp, sorted, i;
+    uint64_t ch_sz;
+    
+    ch_sz = size / omp_get_max_threads();  
     do
     {
         sorted = 1;
-        #pragma omp parallel for schedule(static), private(temp, sorted)
-        for(i = 0; i < size-1; i++)
+        #pragma omp parallel for schedule(static)
+        for (i=0; i<size; i+=ch_sz)
         {
-            if (T[i+1] < T[i])
+            sequential_bubble_sort(T+i, ch_sz);
+        }    
+        #pragma omp parallel for schedule(static), private(temp)
+        for (i=ch_sz;i<size;i+=ch_sz)
+        {
+            if (T[i] < T[i-1])
             {
-                temp = T[i+1];
-                T[i+1] = T[i];
-                T[i] = temp;
-
+                temp = T[i-1];
+                T[i-1] = T[i];
+                T[i] =  temp;
                 sorted = 0;
             }
-        }
-
-        for(int i = 1; i < size-1; i+=(size)/maxnthreads)
-        {
-            if (T[i+1] < T[i])
-            {
-                temp = T[i+1];
-                T[i+1] = T[i];
-                T[i] = temp;
-
-                sorted = 0;
-            }
-        }
-
+        }   
         
-    } while (sorted == 0);
-
+    }while (sorted == 0);
 
     return;
 }
@@ -90,7 +79,8 @@ int main (int argc, char **argv)
     uint64_t av ;
     unsigned int exp ;
 
-    maxnthreads  = omp_get_max_threads ();
+    printf("================================================\n");
+    printf(" Max number of threads: %d \n", omp_get_max_threads());
 
     /* the program takes one parameter N which is the size of the array to
        be sorted. The array will have size 2^N */
@@ -104,7 +94,7 @@ int main (int argc, char **argv)
     /* the array to be sorted */
     uint64_t *X = (uint64_t *) malloc (N * sizeof(uint64_t)) ;
 
-    printf("--> Sorting an array of size %u\n",N);
+    printf(" --> Sorting an array of size %lu\n",N);
 #ifdef RINIT
     printf("--> The array is initialized randomly\n");
 #endif
@@ -117,10 +107,6 @@ int main (int argc, char **argv)
         init_array_sequence (X, N);
 #endif
         
-        if (exp==0) {
-        printf("Initial array: \n");
-        print_array (X, N) ;
-        }
       
         start = _rdtsc () ;
         
@@ -149,7 +135,8 @@ int main (int argc, char **argv)
 
     av = average_time() ;  
 
-    printf ("\n bubble serial \t\t\t %.2lf Mcycles\n\n", (double)av/1000000) ;
+    double serial_cycles = (double)av/1000000;
+    printf ("\n bubble serial \t\t%.2lf Mcycles\n\n", serial_cycles) ;
 
   
     for (exp = 0 ; exp < NBEXPERIMENTS; exp++)
@@ -187,8 +174,10 @@ int main (int argc, char **argv)
     }
     
     av = average_time() ;  
-    printf ("\n bubble parallel \t\t %.2lf Mcycles\n\n", (double)av/1000000) ;
+    double parallel_cycles = (double)av/1000000;
+    printf (" bubble parallel \t%.2lf Mcycles\n\n", parallel_cycles) ;
   
+    printf(" Speedup: \t\t%f\n", serial_cycles/parallel_cycles);
     /* print_array (X, N) ; */
 
     /* before terminating, we run one extra test of the algorithm */
@@ -215,5 +204,7 @@ int main (int argc, char **argv)
     free(X);
     free(Y);
     free(Z);
+
+    printf("================================================\n\n");
     
 }
