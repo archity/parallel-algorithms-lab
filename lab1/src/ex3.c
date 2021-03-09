@@ -5,10 +5,10 @@
 #include <x86intrin.h>
 
 /* default size */
-#define DEF_SIZE    1024
+#define DEF_SIZE    4
 
 /* Processor frequency in GHZ */
-#define PROC_FREQ   2.4
+#define PROC_FREQ   1.6
 
 #define NBEXPERIMENTS    102
 
@@ -229,8 +229,8 @@ int main (int argc, char *argv[])
     init_matrix_inf (&M, datasize, 2.0) ;
     init_vector (&v2, datasize, 0.0) ;
   
-    /* print_vector (v1, datasize) ; */
-    /* print_matrix (M, datasize) ; */
+    print_vector (v1, datasize) ;
+    print_matrix (M, datasize) ;
   
     for (exp = 0 ; exp < NBEXPERIMENTS; exp++)
     {

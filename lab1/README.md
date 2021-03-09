@@ -133,7 +133,17 @@ since matrix is basically an extension of vector, so there is an increase in dim
 With `DEF_SIZE = 1024`:
 
 ```
-======================== Mult Mat Mat =====================================                                                            Sequential Matrix Matrix Multiplication:         15345386720 cycles                                                                    GFLOPS = 0.224 GFLOP per second                                                                                                                                                                                                                                               OpenMP static loop matrix matrix multiplication: 6862852407 cycles                                                                     GFLOPS = 0.500 GFLOP per second                                                                                                                                                                                                                                               OpenMP static unrolled loop matrix matrix multiplication: 3853488397 cycles                                                            GFLOPS = 0.891 GFLOP per second                                                                                                                                                                                                                                               ===================================================================
+======================== Mult Mat Mat =====================================
+Sequential Matrix Matrix Multiplication:         15345386720 cycles
+GFLOPS = 0.224 GFLOP per second
+OpenMP static loop matrix matrix multiplication: 6862852407 cycles
+GFLOPS = 0.500 GFLOP per second
+OpenMP static unrolled loop matrix matrix multiplication: 3853488397 cycles
+GFLOPS = 0.891 GFLOP per second
+===================================================================
 
 ```
 Observations: We see that OpenMP has an advantage only when we use matrices of very large dimensions (1024 X 1024 in this case).
+
+# OpenMP Loop Scheduling
+
