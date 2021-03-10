@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# usage: ./script n
+
+LIMIT=$@
+
+for ((i=4;i<=LIMIT;i++));
+do
+    echo "N = 2^$i"
+    ./bubble.run "$i" >> logs.txt
+    sleep 5s
+done
