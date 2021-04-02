@@ -8,8 +8,8 @@
 int main(int argc, char** argv){
 
     int rank, size;
-    char message[20];
-    MPI_Request request[2];
+    char message[50];
+    MPI_Request request;
     MPI_Status status;
 
     /* Intializes random number generator */
@@ -24,20 +24,22 @@ int main(int argc, char** argv){
     if(rank == 0)
     {
         strcpy(message, "Hello from P0!");
-        // printf("R0: %s\n", message);
         
-        MPI_Isend(&message, 10, MPI_INT, rank+1, 7, MPI_COMM_WORLD, &request[0]);
-        MPI_Irecv(&message, 10, MPI_INT, size+1, 7, MPI_COMM_WORLD, &request[0]);
+        MPI_Isend(message, strlen(message), MPI_INT, rank+1, 7, MPI_COMM_WORLD, &request);
+        MPI_Irecv(message, strlen(message), MPI_INT, rank+1, 7, MPI_COMM_WORLD, &request);
         MPI_Wait(&request, &status);
+
         printf("\nR0 Received: %s\n\n", message);
     }
     
     else if (rank == 1)
     {
         strcpy(message, "Hello from P1!");
-        MPI_Isend(&message, 10, MPI_INT, rank-1, 7, MPI_COMM_WORLD, &request[1]);
-        MPI_Irecv(&message, 10, MPI_INT, rank-1, 7, MPI_COMM_WORLD, &request[1]);
+
+        MPI_Isend(message, strlen(message), MPI_INT, rank-1, 7, MPI_COMM_WORLD, &request);
+        MPI_Irecv(message, strlen(message), MPI_INT, rank-1, 7, MPI_COMM_WORLD, &request);
         MPI_Wait(&request, &status);
+        
         printf("\nR1 Received: %s\n\n", message);
     }
     
