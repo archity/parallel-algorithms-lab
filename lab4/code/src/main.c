@@ -190,6 +190,10 @@ int main(int argc, char * argv[])
 	struct timespec start;
 	clock_gettime(CLOCK_MONOTONIC, &start);
 
+	//measure full time
+	struct timespec full_start;
+	clock_gettime(CLOCK_MONOTONIC, &full_start);
+
 	//time steps
 	for ( i = 1 ; i < ITERATIONS ; i++ )
 	{
@@ -208,12 +212,19 @@ int main(int argc, char * argv[])
 			double result = timespec_diff(&stop, &start);
 
 			//printf
-			printf("Progress [%5d / %5d] (%gs)\n",i,ITERATIONS, result);
+			printf("Progress [%5d / %5d] (%g s)\n",i,ITERATIONS, result);
 
 			//copy back
 			start = stop;
 		}
 	}
+
+	//compute delta
+	struct timespec full_stop;
+	clock_gettime(CLOCK_MONOTONIC, &full_stop);
+	double full_time = timespec_diff(&full_stop, &full_start);
+	if (rank == 0)
+		printf("Total time: %g seconds\n", full_time);
 
 	//close file
 	if (RESULT_FILENAME != NULL)
